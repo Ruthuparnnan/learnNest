@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TodoModule } from './modules/todo/todo.module';
@@ -13,6 +14,7 @@ import { TodoModule } from './modules/todo/todo.module';
         retryDelay: 1000,
       },
     ),
+    ScheduleModule.forRoot(), // ✅ Enable scheduling
     TodoModule, // ✅ MongoDB connection with fallback and retry options
   ],
   controllers: [AppController],
