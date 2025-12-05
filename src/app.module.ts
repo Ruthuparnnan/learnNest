@@ -9,6 +9,7 @@ import { GraphQLError } from 'graphql'; // ✅ ADD THIS
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TodoModule } from './modules/todo/todo.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -51,6 +52,8 @@ import { TodoModule } from './modules/todo/todo.module';
 
     // ✅ Feature Modules
     TodoModule,
+
+    UserModule,
   ],
 
   controllers: [AppController],

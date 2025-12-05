@@ -8,15 +8,27 @@ type TodoType {
   completed: Boolean!
 }
 
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  number: String!
+}
+
 type Query {
   todos: [TodoType!]!
   todo(id: ID!): TodoType!
+  users: [User!]!
+  user(id: ID!): User!
 }
 
 type Mutation {
   createTodo(input: CreateTodoInput!): TodoType!
   updateTodo(id: String!, input: UpdateTodoInput!): TodoType!
   deleteTodo(id: ID!): Boolean!
+  createUser(createUserInput: CreateUserInput!): User!
+  updateUser(updateUserInput: UpdateUserInput!): User!
+  removeUser(id: ID!): Boolean!
 }
 
 input CreateTodoInput {
@@ -25,4 +37,17 @@ input CreateTodoInput {
 
 input UpdateTodoInput {
   completed: Boolean
+}
+
+input CreateUserInput {
+  name: String!
+  email: String!
+  number: String!
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  number: String
+  id: ID!
 }
