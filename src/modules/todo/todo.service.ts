@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Model, Types } from 'mongoose';
@@ -17,21 +17,44 @@ export class TodoService {
     return this.todoModel.find();
   }
 
-  findOne(id: string) {
-    return this.todoModel.findById(id);
+  async findOne(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid todo ID format');
+    }
+    const todo = await this.todoModel.findById(id);
+    if (!todo) {
+      throw new NotFoundException('Todo not found');
+    }
+
+    return todo;
   }
 
-  edit(id: string, input: { completed?: boolean } | boolean) {
+  async edit(id: string, input: { completed?: boolean } | boolean) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid todo ID format');
+    }
     const updateData =
       typeof input === 'boolean' ? { completed: input } : input;
-    return this.todoModel.findByIdAndUpdate(id, updateData, { new: true });
+    const todo = await this.todoModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+    if (!todo) {
+      throw new NotFoundException('Todo not found');
+    }
+    return todo;
   }
 
   async delete(id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Invalid todo ID format');
+    }
     const result = await this.todoModel.deleteOne({
       _id: new Types.ObjectId(id),
     });
-    return result.deletedCount > 0;
+    if (result.deletedCount === 0) {
+      throw new NotFoundException('Todo not found');
+    }
+    return true;
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT) // Runs at 00:00 every day
