@@ -3,6 +3,7 @@ import { TodoService } from './todo.service';
 import { TodoController } from './todo.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TodoSchema } from 'src/schemas/todo.schema';
+import { TodoResolver } from './graphql/todo.resolver';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { TodoSchema } from 'src/schemas/todo.schema';
       },
     ]),
   ],
-  providers: [TodoService],
+  providers: [TodoService, TodoResolver],
   controllers: [TodoController],
   exports: [TodoService],
 })

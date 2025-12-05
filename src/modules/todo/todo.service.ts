@@ -8,21 +8,30 @@ import { Todo } from 'src/schemas/todo.schema';
 export class TodoService {
   constructor(@InjectModel('Todo') private readonly todoModel: Model<Todo>) {}
 
-  create(title: string) {
-    return this.todoModel.create({ title });
+  create(input: { title: string } | string) {
+    const data = typeof input === 'string' ? { title: input } : input;
+    return this.todoModel.create(data);
   }
 
   findAll() {
     return this.todoModel.find();
   }
 
-  edit(id: string, completed: boolean) {
-    return this.todoModel.findByIdAndUpdate(id, { completed }, { new: true });
+  findOne(id: string) {
+    return this.todoModel.findById(id);
   }
 
-  delete(id: string) {
-    this.todoModel.deleteOne({ _id: new Types.ObjectId(id) });
-    return { message: 'Todo deleted' };
+  edit(id: string, input: { completed?: boolean } | boolean) {
+    const updateData =
+      typeof input === 'boolean' ? { completed: input } : input;
+    return this.todoModel.findByIdAndUpdate(id, updateData, { new: true });
+  }
+
+  async delete(id: string) {
+    const result = await this.todoModel.deleteOne({
+      _id: new Types.ObjectId(id),
+    });
+    return result.deletedCount > 0;
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT) // Runs at 00:00 every day
