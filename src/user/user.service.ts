@@ -8,6 +8,7 @@ import * as argon2 from 'argon2';
 import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import * as crypto from 'crypto';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class UserService {
@@ -81,7 +82,6 @@ export class UserService {
     return true;
   }
 
-  // ✅ user.service.ts
   async login(email: string, password: string) {
     const user = await this.userModel.findOne({ email });
 
@@ -108,5 +108,67 @@ export class UserService {
       accessToken,
       refreshToken: user.refreshToken,
     };
+  }
+
+  // refresh tokens
+  async refreshTokens(userId: string, refreshToken: string) {
+    const user = await this.userModel.findById(userId);
+
+    if (!user || !user.refreshToken) {
+      throw new UnauthorizedException('Access Denied');
+    }
+
+    // ✅ Verify refresh token
+    const isValid = await argon2.verify(user.refreshToken, refreshToken);
+
+    if (!isValid) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    // ✅ Check expiry
+    if (
+      !user.refreshTokenExpiresAt ||
+      user.refreshTokenExpiresAt < new Date()
+    ) {
+      throw new UnauthorizedException('Refresh token expired');
+    }
+
+    // ✅ ROTATE refresh token
+    const newRefreshToken = randomBytes(64).toString('hex');
+    const newRefreshTokenHash = await argon2.hash(newRefreshToken);
+
+    const newExpiry = new Date();
+    newExpiry.setDate(newExpiry.getDate() + 7);
+
+    user.refreshToken = newRefreshTokenHash;
+    user.refreshTokenExpiresAt = newExpiry;
+    await user.save();
+
+    // ✅ Generate new access token
+    const payload = {
+      sub: user._id.toString(),
+      email: user.email,
+    };
+
+    const newAccessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
+    });
+
+    return {
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken, // ⚠️ sent only to resolver for cookie
+    };
+  }
+
+  // LOGOUT
+  async logout(userId: string) {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    user.refreshToken = undefined;
+    user.refreshTokenExpiresAt = undefined;
+    await user.save();
+    return true;
   }
 }
