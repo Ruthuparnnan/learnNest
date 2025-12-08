@@ -3,6 +3,8 @@ import { UserService } from './user.service';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { AuthResponse } from './dto/auth-response.type';
+import { LoginUserInput } from './dto/login-user-input';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -31,5 +33,11 @@ export class UserResolver {
   @Mutation(() => Boolean)
   removeUser(@Args('id', { type: () => ID }) id: string) {
     return this.userService.remove(id);
+  }
+
+  // LOGIN
+  @Mutation(() => AuthResponse)
+  login(@Args('input') input: LoginUserInput) {
+    return this.userService.login(input.email, input.password);
   }
 }

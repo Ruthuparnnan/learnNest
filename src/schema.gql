@@ -15,6 +15,11 @@ type User {
   number: String!
 }
 
+type AuthResponse {
+  accessToken: String!
+  refreshToken: String!
+}
+
 type Query {
   todos: [TodoType!]!
   todo(id: ID!): TodoType!
@@ -29,6 +34,7 @@ type Mutation {
   createUser(createUserInput: CreateUserInput!): User!
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: ID!): Boolean!
+  login(input: LoginUserInput!): AuthResponse!
 }
 
 input CreateTodoInput {
@@ -42,12 +48,19 @@ input UpdateTodoInput {
 input CreateUserInput {
   name: String!
   email: String!
-  number: String!
+  password: String!
+  number: String
 }
 
 input UpdateUserInput {
   name: String
   email: String
+  password: String
   number: String
   id: ID!
+}
+
+input LoginUserInput {
+  email: String!
+  password: String!
 }
