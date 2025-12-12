@@ -10,6 +10,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TodoModule } from './modules/todo/todo.module';
 import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -31,8 +32,9 @@ import { UserModule } from './user/user.module';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       playground: true,
 
+      context: ({ req, res }) => ({ req, res }),
+
       formatError: (error: GraphQLError) => {
-        // ✅ FIXED TYPE
         const extensions = error.extensions as
           | {
               code?: string;
@@ -54,6 +56,8 @@ import { UserModule } from './user/user.module';
     TodoModule,
 
     UserModule,
+
+    AuthModule,
   ],
 
   controllers: [AppController],
