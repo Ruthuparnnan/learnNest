@@ -20,6 +20,11 @@ type AuthResponse {
   refreshToken: String!
 }
 
+type RefreshResponse {
+  accessToken: String
+  refreshToken: String
+}
+
 type Query {
   todos: [TodoType!]!
   todo(id: ID!): TodoType!
@@ -35,6 +40,8 @@ type Mutation {
   updateUser(updateUserInput: UpdateUserInput!): User!
   removeUser(id: ID!): Boolean!
   login(input: LoginUserInput!): AuthResponse!
+  refresh: RefreshResponse!
+  logout: Boolean!
 }
 
 input CreateTodoInput {
