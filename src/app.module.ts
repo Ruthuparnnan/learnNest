@@ -11,9 +11,14 @@ import { AppService } from './app.service';
 import { TodoModule } from './modules/todo/todo.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { JwtGlobalModule } from './auth/jwt.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true, // ⭐ makes ConfigService available everywhere
+    }),
     // ✅ MongoDB Connection
     MongooseModule.forRoot(
       process.env.MONGO_URI || 'mongodb://localhost:27017/learndb',
@@ -58,6 +63,8 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
 
     AuthModule,
+
+    JwtGlobalModule,
   ],
 
   controllers: [AppController],
