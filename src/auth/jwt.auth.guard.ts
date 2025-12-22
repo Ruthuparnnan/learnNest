@@ -8,8 +8,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const ctx = GqlExecutionContext.create(context);
     const req = ctx.getContext().req;
 
-    console.log('🔥 GRAPHQL REQ HEADERS:', req?.headers);
-
     return req;
   }
 }

@@ -1,4 +1,9 @@
-import { HttpException, Module } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  HttpException,
+  Module,
+  NestModule,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -13,6 +18,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtGlobalModule } from './auth/jwt.module';
 import { ConfigModule } from '@nestjs/config';
+import { CorrelationIdMiddleware } from './common/middleware/correlation-id.middleware';
 
 @Module({
   imports: [
@@ -40,30 +46,11 @@ import { ConfigModule } from '@nestjs/config';
       context: ({ req, res }) => ({ req, res }),
 
       formatError: (error: GraphQLError) => {
-        const originalError = error.originalError;
-
-        // Default values
-        let message = error.message;
-        let statusCode = 500;
-        let code = 'INTERNAL_SERVER_ERROR';
-
-        if (originalError instanceof HttpException) {
-          const response = originalError.getResponse();
-
-          statusCode = originalError.getStatus();
-
-          if (typeof response === 'string') {
-            message = response;
-          } else if (typeof response === 'object') {
-            message = (response as any).message || message;
-            code = (response as any).error || code;
-          }
-        }
-
         return {
-          message,
-          statusCode,
-          code,
+          message: error.message,
+          code: error.extensions?.code,
+          statusCode: error.extensions?.statusCode ?? 500,
+          correlationId: error.extensions?.correlationId,
         };
       },
     }),
@@ -81,4 +68,8 @@ import { ConfigModule } from '@nestjs/config';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(CorrelationIdMiddleware).forRoutes('*'); // 👈 apply to all requests
+  }
+}

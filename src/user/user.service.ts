@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { randomBytes } from 'crypto';
+import { GraphQLError } from 'graphql';
 
 @Injectable()
 export class UserService {
@@ -82,17 +83,29 @@ export class UserService {
     return true;
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, correlationId: string) {
     const user = await this.userModel.findOne({ email });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email');
+      throw new GraphQLError('Invalid email', {
+        extensions: {
+          code: 'UNAUTHORIZED',
+          statusCode: 401,
+          correlationId,
+        },
+      });
     }
 
     const isPasswordValid = await argon2.verify(user.password, password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid password');
+      throw new GraphQLError('Invalid password', {
+        extensions: {
+          code: 'UNAUTHORIZED',
+          statusCode: 401,
+          correlationId,
+        },
+      });
     }
 
     const payload = {

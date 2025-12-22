@@ -9,7 +9,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly config: ConfigService,
     private readonly userService: UserService,
   ) {
-    console.log('🔥 JwtStrategy CONSTRUCTOR RUN');
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,

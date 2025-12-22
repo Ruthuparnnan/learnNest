@@ -49,13 +49,14 @@ export class UserResolver {
     const { accessToken, refreshToken } = await this.userService.login(
       input.email,
       input.password,
+      ctx.req.correlationId, // 👈 pass it here
     );
-    // ✅ SET REFRESH TOKEN COOKIE
+
     ctx.res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: false, // ✅ use true in production (https)
+      secure: false,
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // ✅ 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return { accessToken };
