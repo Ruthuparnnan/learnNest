@@ -6,33 +6,39 @@ import { UpdateUserInput } from './dto/update-user.input';
 import { AuthResponse } from './dto/auth-response.type';
 import { LoginUserInput } from './dto/login-user-input';
 import { RefreshResponse } from './dto/refresh-response.type';
-import { UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/jwt.auth.guard';
 
 @Resolver(() => User)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Mutation(() => User)
+  @UseGuards(JwtAuthGuard)
   createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
     return this.userService.create(createUserInput);
   }
 
   @Query(() => [User], { name: 'users' })
+  @UseGuards(JwtAuthGuard)
   users() {
     return this.userService.findAll();
   }
 
   @Query(() => User, { name: 'user' })
+  @UseGuards(JwtAuthGuard)
   user(@Args('id', { type: () => ID }) id: string) {
     return this.userService.findOne(id);
   }
 
   @Mutation(() => User)
+  @UseGuards(JwtAuthGuard)
   updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
     return this.userService.update(updateUserInput.id, updateUserInput);
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
   removeUser(@Args('id', { type: () => ID }) id: string) {
     return this.userService.remove(id);
   }
@@ -90,6 +96,4 @@ export class UserResolver {
     ctx.res.clearCookie('refreshToken');
     return true;
   }
-
-  
 }

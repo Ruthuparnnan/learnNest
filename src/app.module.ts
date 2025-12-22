@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { HttpException, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -40,19 +40,30 @@ import { ConfigModule } from '@nestjs/config';
       context: ({ req, res }) => ({ req, res }),
 
       formatError: (error: GraphQLError) => {
-        const extensions = error.extensions as
-          | {
-              code?: string;
-              originalError?: { statusCode?: number };
-            }
-          | undefined;
+        const originalError = error.originalError;
 
-        const originalError = extensions?.originalError;
+        // Default values
+        let message = error.message;
+        let statusCode = 500;
+        let code = 'INTERNAL_SERVER_ERROR';
+
+        if (originalError instanceof HttpException) {
+          const response = originalError.getResponse();
+
+          statusCode = originalError.getStatus();
+
+          if (typeof response === 'string') {
+            message = response;
+          } else if (typeof response === 'object') {
+            message = (response as any).message || message;
+            code = (response as any).error || code;
+          }
+        }
 
         return {
-          message: String(error.message || 'An error occurred'),
-          code: String(extensions?.code || 'INTERNAL_SERVER_ERROR'),
-          statusCode: originalError?.statusCode ?? 500,
+          message,
+          statusCode,
+          code,
         };
       },
     }),
