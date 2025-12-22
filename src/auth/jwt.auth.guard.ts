@@ -4,9 +4,12 @@ import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  // Adapt to GraphQL context so Passport receives the right request
   getRequest(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
-    return ctx.getContext().req;
+    const req = ctx.getContext().req;
+
+    console.log('🔥 GRAPHQL REQ HEADERS:', req?.headers);
+
+    return req;
   }
 }

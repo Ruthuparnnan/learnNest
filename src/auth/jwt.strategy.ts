@@ -9,17 +9,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly config: ConfigService,
     private readonly userService: UserService,
   ) {
+    console.log('🔥 JwtStrategy CONSTRUCTOR RUN');
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.get('dev-secret') || 'default-secret', // ensure this exists
+      secretOrKey:
+        config.get<string>('ABSOLUTE_TEST_SECRET') || 'ABSOLUTE_TEST_SECRET',
     });
   }
 
   async validate(payload: any) {
-    // payload.sub is user id (as you signed earlier)
-    const user = await this.userService.findOne(payload.sub);
-    // Option: throw if user not found
-    return user; // attaches user to req.user
+    return payload;
   }
 }

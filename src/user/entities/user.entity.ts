@@ -11,6 +11,6 @@ export class User {
   @Field()
   email: string;
 
-  @Field()
-  number: string;
+  @Field({ nullable: true })
+  number?: string;
 }

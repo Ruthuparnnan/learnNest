@@ -12,7 +12,7 @@ type User {
   id: ID!
   name: String!
   email: String!
-  number: String!
+  number: String
 }
 
 type AuthResponse {
@@ -25,17 +25,12 @@ type RefreshResponse {
   refreshToken: String
 }
 
-type Auth {
-  """Example field (placeholder)"""
-  exampleField: Int!
-}
-
 type Query {
   todos: [TodoType!]!
   todo(id: ID!): TodoType!
   users: [User!]!
   user(id: ID!): User!
-  auth(id: Int!): Auth!
+  me: User!
 }
 
 type Mutation {
@@ -48,9 +43,6 @@ type Mutation {
   login(input: LoginUserInput!): AuthResponse!
   refresh: RefreshResponse!
   logout: Boolean!
-  createAuth(createAuthInput: CreateAuthInput!): Auth!
-  updateAuth(updateAuthInput: UpdateAuthInput!): Auth!
-  removeAuth(id: Int!): Auth!
 }
 
 input CreateTodoInput {
@@ -79,15 +71,4 @@ input UpdateUserInput {
 input LoginUserInput {
   email: String!
   password: String!
-}
-
-input CreateAuthInput {
-  """Example field (placeholder)"""
-  exampleField: Int!
-}
-
-input UpdateAuthInput {
-  """Example field (placeholder)"""
-  exampleField: Int
-  id: Int!
 }
