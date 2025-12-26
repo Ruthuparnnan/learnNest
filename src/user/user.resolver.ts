@@ -8,6 +8,7 @@ import { LoginUserInput } from './dto/login-user-input';
 import { RefreshResponse } from './dto/refresh-response.type';
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt.auth.guard';
+import { MongoIdPipe } from 'src/common/pipes/mongo-id.pipe';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -27,7 +28,7 @@ export class UserResolver {
 
   @Query(() => User, { name: 'user' })
   @UseGuards(JwtAuthGuard)
-  user(@Args('id', { type: () => ID }) id: string) {
+  user(@Args('id', { type: () => ID }, MongoIdPipe) id: string) {
     return this.userService.findOne(id);
   }
 
