@@ -42,9 +42,6 @@ export class UserService {
   }
 
   async findOne(id: string) {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new NotFoundException('Invalid user ID format');
-    }
     const user = await this.userModel.findById(id);
     if (!user) {
       throw new NotFoundException('User not found');
